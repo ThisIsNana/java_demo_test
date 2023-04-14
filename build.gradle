@@ -15,6 +15,14 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	//新增依賴：
+	//如不知道版本可以把":2.7.10"刪掉，讓他自己判斷
+	//implementation 'org.springframework.boot:spring-boot-starter-web:2.7.10' 
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//MySQL connector Java 裝8.0.31
+	implementation 'mysql:mysql-connector-java:8.0.31'
+	
 }
 
 tasks.named('test') {
