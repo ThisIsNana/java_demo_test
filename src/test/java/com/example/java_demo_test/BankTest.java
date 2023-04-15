@@ -65,10 +65,12 @@ public class BankTest {
 		Assert.isTrue(resultBank.getAmount() == oldBank.getAmount() - newBank.getAmount(), "錯誤~");
 		Assert.isTrue(response.getMessage().equals("提款完成!"), "提款失敗");
 		System.out.printf("帳戶：%s，餘額：%d%n",resultBank.getAccount(),resultBank.getAmount());
-		System.out.println(response.getMessage());
+		response.getMessage();
+		System.out.println();
 		//刪除測試資料
 		bankDAO.delete(resultBank);
 		
+		//orderR：listmenu 訊息 原始價格 優惠後價格
 	}
 	
 }

@@ -14,8 +14,6 @@ import com.example.java_demo_test.vo.BankResponse;
 @Service
 public class BankServiceImpl implements BankService {
 
-	private String ptn = "\\w{3,8}";
-
 	@Autowired
 	private BankDAO bankDAO;
 
@@ -35,7 +33,7 @@ public class BankServiceImpl implements BankService {
 		// Entity建立完成(新增到資料庫裡bank資料表中)
 		// JpaR的方法
 
-		System.out.println("==完成==");
+		System.out.println("==建立帳號完成==");
 
 	}
 
@@ -134,15 +132,13 @@ public class BankServiceImpl implements BankService {
 		int newAmount = resultBank.getAmount() + bank.getAmount();
 
 		resultBank.setAmount(newAmount);
-		return new BankResponse(bankDAO.save(resultBank),"存款完成!");
+		return new BankResponse(bankDAO.save(resultBank), "存款完成!");
 	}
 
 	@Override // 提款
 	public BankResponse withdraw(Bank bank) {
 		// 確認輸入"正確"的資訊
-		if (bank == null 
-				|| !StringUtils.hasText(bank.getAccount()) 
-				|| !StringUtils.hasText(bank.getPwd())
+		if (bank == null || !StringUtils.hasText(bank.getAccount()) || !StringUtils.hasText(bank.getPwd())
 				|| bank.getAmount() <= 0) {
 			return new BankResponse(new Bank(), "帳號、密碼或金額格式有誤。");
 		}
@@ -158,7 +154,7 @@ public class BankServiceImpl implements BankService {
 			return new BankResponse(new Bank(), "餘額不足!");
 		}
 		resultBank.setAmount(newAmount);
-		return new BankResponse(bankDAO.save(resultBank),"提款完成!");
+		return new BankResponse(bankDAO.save(resultBank), "提款完成!");
 
 	}
 
