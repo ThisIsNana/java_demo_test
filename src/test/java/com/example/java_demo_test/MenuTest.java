@@ -27,21 +27,23 @@ public class MenuTest {
 		menus.add(new Menu("三明治",30));
 		menus.add(new Menu("大冰奶",20));
 		orderService.addMenu(menus);
-		System.out.println("===菜單===");	
+		System.out.println("===菜單新增結束===");	
 	}
 	
-
+	@Test
 	public void getPriceByIdTest() {
 		Menu menu = orderService.getPriceById("漢堡");
 		System.out.printf("菜名：%s，價格：%d%n",menu.getItem(),menu.getPrice());
 	}
-	
+
+	@Test
 	public void addOrderTest() {
 		Map<String, Integer> orders = new HashMap<>();
-		orders.put("漢堡", 2);
-		orders.put("大冰奶", 4);
+		orders.put("漢堡", 20);
+		orders.put("大冰奶", 20);
+		orders.put("三明治", -25);
 		orderService.addOrder(orders);
-		System.out.println("==點餐完成==");
+		System.out.println("====謝謝光臨====");
 	}
 	
 	

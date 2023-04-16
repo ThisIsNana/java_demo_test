@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.example.java_demo_test.entity.Bank;
 import com.example.java_demo_test.entity.Menu;
 import com.example.java_demo_test.repository.OrderDAO;
 import com.example.java_demo_test.service.ifs.OrderService;
+import com.example.java_demo_test.vo.BankResponse;
+import com.example.java_demo_test.vo.OrderResponse;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -37,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
 
 	}
 
-	//對照菜名與價格&計算價格與數量
+	// 取出資料
 	@Override
 	public Menu getPriceById(String Id) {
 		if (!StringUtils.hasText(Id)) { // ==第50行
@@ -48,18 +51,32 @@ public class OrderServiceImpl implements OrderService {
 		
 	}
 	
-	//點餐
+	// 點餐
 	@Override
-	public void addOrder(Map<String, Integer> orders) {
-		for(Entry<String, Integer> orderItem : orders.entrySet()) {
-			if(orderItem.getKey() == null) {
-				System.out.println("無此菜單");
-				return;
+	public OrderResponse addOrder(Map<String, Integer> orders) {
+		System.out.println("==============");
+		int sumPrice = 0;
+		for (Entry<String, Integer> orderItem : orders.entrySet()) {
+			int totalPrice = 0;
+			// 先確認點餐內容
+			if (orderItem.getKey().isBlank() || orderItem.getKey() == null) {
+				return new OrderResponse(new Menu(), "無此菜單");
 			}
-			if(orderItem.getValue() <= 0) {
-				System.out.println("請輸入正確的數量");
-				return;
+			if (orderItem.getValue() <= 0 || orderItem.getValue() == null) {
+				return new OrderResponse(new Menu(), "餐點數量不得為負數");
 			}
-		}		
+			// 從DAO取出價格資料
+			int resultPrice = getPriceById(orderItem.getKey()).getPrice();
+			totalPrice = orderItem.getValue() * resultPrice;
+			sumPrice += orderItem.getValue() * resultPrice;
+			System.out.printf("餐點：%s，價格%d，數量：%d，小計:%d%n",orderItem.getKey(),resultPrice,orderItem.getValue(),totalPrice);
+		}
+		System.out.println("==============");
+		if(sumPrice >= 500) {
+			sumPrice *= 0.9;
+			System.out.printf("滿500，打九折！%n");
+		}
+		System.out.printf("合計：%d%n",sumPrice);
+		return new OrderResponse("==點餐完成==");
 	}
 }
