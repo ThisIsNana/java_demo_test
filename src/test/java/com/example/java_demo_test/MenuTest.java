@@ -41,7 +41,7 @@ public class MenuTest {
 		Map<String, Integer> orders = new HashMap<>();
 		orders.put("漢堡", 20);
 		orders.put("大冰奶", 20);
-		orders.put("三明治", -25);
+		orders.put("三明治", 25);
 		orderService.addOrder(orders);
 		System.out.println("====謝謝光臨====");
 	}
