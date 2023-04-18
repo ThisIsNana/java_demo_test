@@ -5,15 +5,22 @@ import java.util.Map;
 
 import com.example.java_demo_test.entity.Bank;
 import com.example.java_demo_test.entity.Menu;
+import com.example.java_demo_test.vo.GetMenuResponse;
 import com.example.java_demo_test.vo.OrderResponse;
 
 public interface OrderService {
 
-	public void addMenu(List<Menu> menus);
-	
+	public OrderResponse addMenu(List<Menu> menus);
+
+	public OrderResponse addOrder(Map<String, Integer> orders);
+
+	public OrderResponse getAllMenus();
+
 	public Menu getPriceById(String Id);
 
-	public OrderResponse addOrder(Map<String,Integer> orders);
+	public GetMenuResponse getMenuByName(String name); // name = À\ÂI¦WºÙ
 	
+	public OrderResponse updateMenuPrice(List<Menu> menuList);
 	
+
 }

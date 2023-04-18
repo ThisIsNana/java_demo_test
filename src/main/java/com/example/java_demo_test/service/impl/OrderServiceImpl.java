@@ -1,19 +1,22 @@
 package com.example.java_demo_test.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import com.example.java_demo_test.entity.Bank;
 import com.example.java_demo_test.entity.Menu;
 import com.example.java_demo_test.repository.OrderDAO;
 import com.example.java_demo_test.service.ifs.OrderService;
-import com.example.java_demo_test.vo.BankResponse;
+import com.example.java_demo_test.vo.GetMenuResponse;
 import com.example.java_demo_test.vo.OrderResponse;
 
 @Service
@@ -23,21 +26,90 @@ public class OrderServiceImpl implements OrderService {
 	private OrderDAO orderDAO;
 
 	@Override
-	public void addMenu(List<Menu> menus) {
+	public OrderResponse addMenu(List<Menu> menus) {
 		// 新增項目(string 名稱, int價格)進資料庫裡
+		// 檢查List不得為null或空
+		// 用CollectionUtils
+		if (CollectionUtils.isEmpty(menus)) { // ==> if(menus == null || menus.isEmpty()) {
+			return new OrderResponse("XX 無新增項目，或新增項目為null或空白 XX");
+		}
 		for (Menu menuItem : menus) {
-			if (menuItem.getItem() == null) {
-				System.out.println("菜名有誤!");
-				return;
+//			if (menuItem.getItem() == null || menuItem.getItem().isBlank()) {
+			// 用StringUtils
+			if (!StringUtils.hasText(menuItem.getItem())) {
+				return new OrderResponse("XX 菜名有誤!不得為全空白或null XX");
 			}
 			if (menuItem.getPrice() <= 0) {
-				System.out.println("定價不得為零或負數");
-				return;
+				return new OrderResponse("XX 定價不得為零或負數! XX");
 			}
-			orderDAO.save(menuItem);
+			System.out.printf("菜單已新增：%s，單價：%d元%n", menuItem.getItem(), menuItem.getPrice());
+//			orderDAO.save(menuItem);	//盡量避免在for迴圈中一個一個加入的這種寫法，會使用太多次資料庫(增刪修查都是)↓↓
 		}
-		System.out.println("==新增菜單完成==");
+//		return new OrderResponse(menus);
+		List<Menu> response = orderDAO.saveAll(menus); // 一次將所有集合加入資料庫可以節省cost!只需使用一次資料庫~
+		return new OrderResponse(response, "==addMenu完成==");
 
+	}
+
+	// 點餐
+	@Override
+	public OrderResponse addOrder(Map<String, Integer> orders) { // "beef:10";"AAA":5;"tea":3
+		System.out.println("==============");
+		int sumPrice = 0;
+//		for (Entry<String, Integer> orderItem : orders.entrySet()) {
+//			int totalPrice = 0;
+//			// 先確認點餐內容
+//			if (orderItem.getKey().isBlank() || orderItem.getKey() == null) {
+//				return new OrderResponse("XX 無此菜單 XX");
+//			}
+//			if (orderItem.getValue() < 0 || orderItem.getValue() == null) {
+//				return new OrderResponse("XX 餐點數量不得為負數 XX");
+//			}
+//			// 從DAO取出價格資料 ==> 不推薦這麼寫，不建議讓DAO跑太多次
+//			int resultPrice = getPriceById(orderItem.getKey()).getPrice();
+//			totalPrice = orderItem.getValue() * resultPrice;
+//			sumPrice += orderItem.getValue() * resultPrice;
+//			System.out.printf("餐點：%s，價格%d，數量：%d，小計:%d%n", orderItem.getKey(), resultPrice, orderItem.getValue(),
+//					totalPrice);
+//		}
+
+		List<String> itemList = new ArrayList<>();
+		Map<String, Integer> finalOrderMap = new HashMap();
+		for (Entry<String, Integer> orderItem : orders.entrySet()) {
+			if (orderItem.getValue() < 0 || orderItem.getValue() == null) {
+				return new OrderResponse("XX 餐點數量不得為負數 XX");
+			}
+			itemList.add(orderItem.getKey()); // 新增進一個只有餐點名稱的List ==> "beef:";"AAA","tea"
+		}
+		List<Menu> resultOrderList = orderDAO.findAllById(itemList);
+		// 找到所有所點的餐點資料 ==> "beef":120(元);"tea":30(元)
+		for (Menu menu : resultOrderList) {
+			String item = menu.getItem(); // 餐點名稱
+			int price = menu.getPrice();
+			for (Entry<String, Integer> map : orders.entrySet()) {
+				String key = map.getKey();
+				int value = map.getValue();
+				if (item.equals(key)) {
+					int singleTotalPrice = price * value;
+					sumPrice += singleTotalPrice;
+					finalOrderMap.put(key, value);
+				}
+			}
+		}
+
+		System.out.println("==============");
+//		if (sumPrice >= 500) {
+//			sumPrice *= 0.9;
+//			System.out.printf("滿500，打九折！%n");
+//		}
+//		System.out.printf("合計：%d%n", sumPrice);
+		sumPrice = (int) (sumPrice >= 500 ? sumPrice * 0.9 : sumPrice);
+		return new OrderResponse(finalOrderMap, sumPrice, "==addOrder完成==");
+	}
+
+	// API列出所有餐點(無參數)
+	public OrderResponse getAllMenus() {
+		return new OrderResponse(orderDAO.findAll(), "取得餐點成功!");
 	}
 
 	// 取出資料
@@ -48,35 +120,55 @@ public class OrderServiceImpl implements OrderService {
 		}
 		Optional<Menu> op = orderDAO.findById(Id);
 		return op.orElse(new Menu());
-		
 	}
-	
-	// 點餐
+
+	// 作業: 用name查資料回傳
 	@Override
-	public OrderResponse addOrder(Map<String, Integer> orders) {
-		System.out.println("==============");
-		int sumPrice = 0;
-		for (Entry<String, Integer> orderItem : orders.entrySet()) {
-			int totalPrice = 0;
-			// 先確認點餐內容
-			if (orderItem.getKey().isBlank() || orderItem.getKey() == null) {
-				return new OrderResponse(new Menu(), "無此菜單");
-			}
-			if (orderItem.getValue() <= 0 || orderItem.getValue() == null) {
-				return new OrderResponse(new Menu(), "餐點數量不得為負數");
-			}
-			// 從DAO取出價格資料
-			int resultPrice = getPriceById(orderItem.getKey()).getPrice();
-			totalPrice = orderItem.getValue() * resultPrice;
-			sumPrice += orderItem.getValue() * resultPrice;
-			System.out.printf("餐點：%s，價格%d，數量：%d，小計:%d%n",orderItem.getKey(),resultPrice,orderItem.getValue(),totalPrice);
+	public GetMenuResponse getMenuByName(String name) {
+		if (!StringUtils.hasText(name)) {
+			return new GetMenuResponse("查無菜單資料");
 		}
-		System.out.println("==============");
-		if(sumPrice >= 500) {
-			sumPrice *= 0.9;
-			System.out.printf("滿500，打九折！%n");
+		Optional<Menu> op = orderDAO.findById(name);
+		if (!op.isPresent()) {
+			return new GetMenuResponse("餐點不存在");
 		}
-		System.out.printf("合計：%d%n",sumPrice);
-		return new OrderResponse("==點餐完成==");
+		return new GetMenuResponse(op.get(), "成功");
+	}
+
+	// 1. 只能修改存在的菜單價格
+	// 2. 不得為負數
+	// 3. 返回修改後的名稱+新價格
+	@Override
+	public OrderResponse updateMenuPrice(List<Menu> menuList) {
+		if( CollectionUtils.isEmpty(menuList)) {
+			return new OrderResponse("更改內容不能為null");
+		}
+		List<String> itemList = new ArrayList<>();
+		List<Menu> saveList = new ArrayList<>();
+		for (Menu menuListItem : menuList) {
+			//不需要判斷是否menuListItem為null或空，因為即使帶入了也搜尋不到。
+			if (menuListItem.getPrice() <= 0) {
+				return new OrderResponse("價格有誤");
+			}
+			itemList.add(menuListItem.getItem());
+		}
+		// 找到有的項目清單
+		List<Menu> resultMenu = orderDAO.findAllById(itemList);
+		if(resultMenu.isEmpty()) {
+			return new OrderResponse("項目不存在，只能更新既有的菜單~");
+		}
+		for (Menu result : resultMenu) {
+			for(Menu menuListItem : menuList) {
+				if(result.getItem().equals(menuListItem.getItem())) {
+//					result.setPrice(menuListItem.getPrice());
+//					saveList.add(result);
+					saveList.add(menuListItem);
+				}
+			}
+		}
+
+		orderDAO.saveAll(saveList);
+		return new OrderResponse(saveList, "修改完成");
+		//save: 有存在就修改，不存在就新增
 	}
 }
