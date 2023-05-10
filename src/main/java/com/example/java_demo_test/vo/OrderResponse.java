@@ -26,6 +26,10 @@ public class OrderResponse {
 		super();
 	}
 
+	public OrderResponse(Menu dbMenu, int total, String message) {
+		super();
+	}
+
 	public OrderResponse(String message) {
 		super();
 		this.message = message;
@@ -34,6 +38,14 @@ public class OrderResponse {
 	public OrderResponse(List<Menu> menus) {
 		super();
 		this.menus = menus;
+	}
+
+	public OrderResponse(List<Menu> menus, Map<String, Integer> orderMap, int totalPriceOff, String message) {
+		super();	
+		this.menus = menus;
+		this.orderMap = orderMap;
+		this.totalPriceOff = totalPriceOff;
+		this.message = message;
 	}
 
 	public OrderResponse(Map<String, Integer> orderMap, int totalPriceOff, String message) {

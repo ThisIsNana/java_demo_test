@@ -16,7 +16,7 @@ public interface OrderService {
 
 	public OrderResponse getAllMenus();
 
-	public Menu getPriceById(String Id);
+	public Menu getInfoById(String Id);
 
 	public GetMenuResponse getMenuByName(String name); // name = À\ÂI¦WºÙ
 	

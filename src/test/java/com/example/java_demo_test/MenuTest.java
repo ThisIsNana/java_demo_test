@@ -36,7 +36,7 @@ public class MenuTest {
 	
 	@Test
 	public void getPriceByIdTest() {
-		Menu menu = orderService.getPriceById("漢堡");
+		Menu menu = orderService.getInfoById("漢堡");
 		System.out.printf("菜名：%s，價格：%d%n",menu.getItem(),menu.getPrice());
 	}
 
@@ -49,6 +49,11 @@ public class MenuTest {
 		OrderResponse orderResponse = orderService.addOrder(orders);
 		System.out.println(orderResponse.getMessage());
 		System.out.println("====addOrderTest結束====");
+	}
+	
+	@Test
+	public void addOrderTest2() {
+		
 	}
 	
 	

@@ -56,23 +56,6 @@ public class OrderServiceImpl implements OrderService {
 	public OrderResponse addOrder(Map<String, Integer> orders) { // "beef:10";"AAA":5;"tea":3
 		System.out.println("==============");
 		int sumPrice = 0;
-//		for (Entry<String, Integer> orderItem : orders.entrySet()) {
-//			int totalPrice = 0;
-//			// 先確認點餐內容
-//			if (orderItem.getKey().isBlank() || orderItem.getKey() == null) {
-//				return new OrderResponse("XX 無此菜單 XX");
-//			}
-//			if (orderItem.getValue() < 0 || orderItem.getValue() == null) {
-//				return new OrderResponse("XX 餐點數量不得為負數 XX");
-//			}
-//			// 從DAO取出價格資料 ==> 不推薦這麼寫，不建議讓DAO跑太多次
-//			int resultPrice = getPriceById(orderItem.getKey()).getPrice();
-//			totalPrice = orderItem.getValue() * resultPrice;
-//			sumPrice += orderItem.getValue() * resultPrice;
-//			System.out.printf("餐點：%s，價格%d，數量：%d，小計:%d%n", orderItem.getKey(), resultPrice, orderItem.getValue(),
-//					totalPrice);
-//		}
-
 		List<String> itemList = new ArrayList<>();
 		Map<String, Integer> finalOrderMap = new HashMap();
 		for (Entry<String, Integer> orderItem : orders.entrySet()) {
@@ -96,8 +79,6 @@ public class OrderServiceImpl implements OrderService {
 				}
 			}
 		}
-
-		System.out.println("==============");
 //		if (sumPrice >= 500) {
 //			sumPrice *= 0.9;
 //			System.out.printf("滿500，打九折！%n");
@@ -105,21 +86,50 @@ public class OrderServiceImpl implements OrderService {
 //		System.out.printf("合計：%d%n", sumPrice);
 		sumPrice = (int) (sumPrice >= 500 ? sumPrice * 0.9 : sumPrice);
 		return new OrderResponse(finalOrderMap, sumPrice, "==addOrder完成==");
-	}
 
-	// API列出所有餐點(無參數)
-	public OrderResponse getAllMenus() {
-		return new OrderResponse(orderDAO.findAll(), "取得餐點成功!");
+		// =====================================
+		// 用ExistById去寫(老師後來又說不需要所以刪掉了
+//		int sumPrice = 0;
+//		List<Menu> resultDbMenu = new ArrayList<>();
+//		if (orders.isEmpty()) {
+//			return new OrderResponse("XX 點餐列表不得為空 XX");
+//		}
+//		for (Entry<String, Integer> orderItem : orders.entrySet()) {
+//			int totalPrice = 0;
+//			// 從DAO取出資料 ==> 不推薦在for迴圈裡這麼寫，不建議讓DAO跑太多次
+//			Optional<Menu> op = orderDAO.findById(orderItem.getKey());
+//			if (!op.isPresent()) {
+//				return new OrderResponse("錯誤!輸入的項目皆不存在");
+//			}
+//
+//			int quantity = orderItem.getValue();
+//			int price = op.get().getPrice();
+//
+//			totalPrice = quantity * price;
+//			sumPrice += totalPrice;
+//			resultDbMenu.add(op.get());
+//		}
+//		if (sumPrice >= 500) {
+//			sumPrice *= 0.9;
+//			return new OrderResponse(resultDbMenu, orders, sumPrice, "滿500，打九折。點餐完成。");
+//		}
+//		return new OrderResponse(resultDbMenu, orders, sumPrice, "點餐完成");
+
 	}
 
 	// 取出資料
 	@Override
-	public Menu getPriceById(String Id) {
+	public Menu getInfoById(String Id) {
 		if (!StringUtils.hasText(Id)) { // ==第50行
 			return new Menu();
 		}
 		Optional<Menu> op = orderDAO.findById(Id);
 		return op.orElse(new Menu());
+	}
+
+	// API列出所有餐點(無參數)
+	public OrderResponse getAllMenus() {
+		return new OrderResponse(orderDAO.findAll(), "取得餐點成功!");
 	}
 
 	// 作業: 用name查資料回傳
@@ -140,13 +150,13 @@ public class OrderServiceImpl implements OrderService {
 	// 3. 返回修改後的名稱+新價格
 	@Override
 	public OrderResponse updateMenuPrice(List<Menu> menuList) {
-		if( CollectionUtils.isEmpty(menuList)) {
+		if (CollectionUtils.isEmpty(menuList)) {
 			return new OrderResponse("更改內容不能為null");
 		}
 		List<String> itemList = new ArrayList<>();
 		List<Menu> saveList = new ArrayList<>();
 		for (Menu menuListItem : menuList) {
-			//不需要判斷是否menuListItem為null或空，因為即使帶入了也搜尋不到。
+			// 不需要判斷是否menuListItem為null或空，因為即使帶入了也搜尋不到。
 			if (menuListItem.getPrice() <= 0) {
 				return new OrderResponse("價格有誤");
 			}
@@ -154,12 +164,12 @@ public class OrderServiceImpl implements OrderService {
 		}
 		// 找到有的項目清單
 		List<Menu> resultMenu = orderDAO.findAllById(itemList);
-		if(resultMenu.isEmpty()) {
+		if (resultMenu.isEmpty()) {
 			return new OrderResponse("項目不存在，只能更新既有的菜單~");
 		}
 		for (Menu result : resultMenu) {
-			for(Menu menuListItem : menuList) {
-				if(result.getItem().equals(menuListItem.getItem())) {
+			for (Menu menuListItem : menuList) {
+				if (result.getItem().equals(menuListItem.getItem())) {
 //					result.setPrice(menuListItem.getPrice());
 //					saveList.add(result);
 					saveList.add(menuListItem);
@@ -169,6 +179,6 @@ public class OrderServiceImpl implements OrderService {
 
 		orderDAO.saveAll(saveList);
 		return new OrderResponse(saveList, "修改完成");
-		//save: 有存在就修改，不存在就新增
+		// save: 有存在就修改，不存在就新增
 	}
 }

@@ -15,14 +15,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	//·s¼W¨Ì¿à¡G
-	//¦p¤£ª¾¹Dª©¥»¥i¥H§â":2.7.10"§R±¼¡AÅı¥L¦Û¤v§PÂ_
+	//æ–°å¢ä¾è³´ï¼š
+	//å¦‚ä¸çŸ¥é“ç‰ˆæœ¬å¯ä»¥æŠŠ":2.7.10"åˆªæ‰ï¼Œè®“ä»–è‡ªå·±åˆ¤æ–·
 	//implementation 'org.springframework.boot:spring-boot-starter-web:2.7.10' 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	//MySQL connector Java ¸Ë8.0.31
+	//MySQL connector Java è£8.0.31
 	implementation 'mysql:mysql-connector-java:8.0.31'
 	
+	//=========================
+	// Swagger:æ­é…configä½¿ç”¨ + éš±è—è¦ç”¨@ApiIgnore
+	//implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	
+	// SpringDoc OpenAPI UI Â» 1.7.0 + éš±è—è¦ç”¨@Hidden
+	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+	//=========================
 }
 
 tasks.named('test') {
