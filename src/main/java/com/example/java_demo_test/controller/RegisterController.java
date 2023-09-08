@@ -21,7 +21,7 @@ public class RegisterController {
 	@Autowired
 	private RegisterService registerService;
 
-	@PostMapping(value = "register")
+	@PostMapping(value = "api/register")
 	public RegisterResponse register(@RequestBody RegisterRequest request) {
 		return registerService.register(request.getAccount(), request.getPwd());
 	}
@@ -31,7 +31,15 @@ public class RegisterController {
 		return registerService.active(request.getAccount(), request.getPwd());
 
 	}
-
+	
+	@PostMapping(value = "api/logout")
+	public RegisterResponse logout(HttpSession session) {
+		session.removeAttribute("accouunt");
+		session.removeAttribute("pwd");
+		
+		return new RegisterResponse("登出成功");
+	}
+	
 	/*
 	 * Session可以暫存已登入的狀態
 	 * 1.預設時間是30分鐘。
@@ -50,7 +58,7 @@ public class RegisterController {
 			session.setAttribute("verifyCode", verifyCode);
 			session.setAttribute("account", request.getAccount());
 			session.setAttribute("pwd", request.getPwd());
-			session.setMaxInactiveInterval(600); //暫存時間。單位：秒
+			session.setMaxInactiveInterval(300); //暫存時間。單位：秒
 			res.setSessionId(session.getId());
 			res.setVerifyCode(verifyCode);
 		}

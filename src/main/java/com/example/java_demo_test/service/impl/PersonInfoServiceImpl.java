@@ -22,6 +22,7 @@ import com.example.java_demo_test.vo.PersonInfoResponse;
 @Service
 public class PersonInfoServiceImpl implements PersonInfoService {
 
+	//勿@Autowired
 	private Logger logger = LoggerFactory.getLogger(getClass()); //slf4j
 	
 	@Autowired
@@ -39,7 +40,6 @@ public class PersonInfoServiceImpl implements PersonInfoService {
 		for (PersonInfo personInfo : personInfoList) {
 			if (!StringUtils.hasText(personInfo.getId()) || !StringUtils.hasText(personInfo.getName())
 					|| personInfo.getAge() < 0 || !StringUtils.hasText(personInfo.getCity())) {
-//				continue;
 				return new PersonInfoResponse("新增項目有誤！請檢查欄位!");
 			}
 			idList.add(personInfo.getId());
@@ -79,7 +79,6 @@ public class PersonInfoServiceImpl implements PersonInfoService {
 //		}
 	}
 
-	// 2.取得所有資料庫資訊
 
 	// 3.用Id取得單一資訊
 	@Override

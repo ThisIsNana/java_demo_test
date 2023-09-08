@@ -35,8 +35,8 @@
 	</appender>
 
 	<!-- logger -->
-	<!-- 設定日誌輸出級別: fatal > error > warn > info > debug > trace，只能輸出大於或等於設定的日誌級別 -->
-	<!-- spring boot 預設級別為 info，則輸出的日誌級別為 info、warn、error、fatal -->
+	<!-- ★設定日誌輸出級別: fatal > error > warn > info > debug > trace，只能輸出大於或等於設定的日誌級別 -->
+	<!-- spring boot 預設級別為 info，則輸出的日誌級別為 info以上、即info、warn、error、fatal 皆會輸出-->
 	<root level="info">
 	 	<appender-ref ref="fileout" />
 		<appender-ref ref="stdout" />

@@ -1,9 +1,17 @@
 package com.example.java_demo_test.service.impl;
 
+import java.time.LocalTime;
 import java.util.Optional;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.example.java_demo_test.entity.Register;
@@ -12,12 +20,16 @@ import com.example.java_demo_test.service.ifs.RegisterService;
 import com.example.java_demo_test.vo.RegisterRequest;
 import com.example.java_demo_test.vo.RegisterResponse;
 
+@EnableScheduling
 @Service
 public class RegisterServiceImpl implements RegisterService {
 
+	private Logger logger = LoggerFactory.getLogger(getClass()); //slf4j
+	
 	@Autowired
 	private RegisterDAO regDAO;
 
+//	@Transactional(readOnly = true) //注意import springframework的transaction
 	@Override
 	public RegisterResponse register(String account, String pwd) {
 
@@ -79,9 +91,16 @@ public class RegisterServiceImpl implements RegisterService {
 		return new RegisterResponse("登入成功");
 	}
 
+	
+	//=============================================================------------------=======
+
+	// 0616 + cache寫
+	@Cacheable(value="account", key="#account")
 	@Override
 	public RegisterResponse getRegTime(String account, String pwd) {
-
+		if (!StringUtils.hasText(account) || !StringUtils.hasText(pwd)) {
+			return new RegisterResponse("請先登入!");
+		}
 		// 驗證
 		Register res = regDAO.findByAccountAndPwdAndActive(account, pwd, true);
 		if (res == null) {
@@ -111,4 +130,8 @@ public class RegisterServiceImpl implements RegisterService {
 	}
 		
 
+	@Scheduled(cron = "0/7 18,20 17 * * *")
+	public void scheduleTest() {
+		System.out.println("now: "+ LocalTime.now());
+	}
 }

@@ -30,6 +30,14 @@ dependencies {
 	// SpringDoc OpenAPI UI » 1.7.0 + 隱藏要用@Hidden
 	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 	//=========================
+	
+	// 緩存
+	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
+	implementation 'org.springframework.boot:spring-boot-starter-cache:'
+	// +
+	// https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
+	implementation 'com.github.ben-manes.caffeine:caffeine:'
+
 }
 
 tasks.named('test') {
